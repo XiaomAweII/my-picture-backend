@@ -1,10 +1,14 @@
 package com.maxiaowei.yupicturebackend.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.maxiaowei.yupicturebackend.model.dto.user.UserQueryRequest;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.maxiaowei.yupicturebackend.model.vo.LoginUserVO;
+import com.maxiaowei.yupicturebackend.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author Administrator
@@ -47,6 +51,30 @@ public interface UserService extends IService<User> {
      * @return
      */
     LoginUserVO getLoginUserVO(User user);
+
+    /**
+     * 获得脱敏后的用户信息
+     *
+     * @param user
+     * @return
+     */
+    UserVO getUserVO(User user);
+
+    /**
+     * 获得脱敏后的用户信息列表
+     *
+     * @param userList
+     * @return
+     */
+    List<UserVO> getUserVOList(List<User> userList);
+
+    /**
+     *
+     *
+     * @param userQueryRequest
+     * @return
+     */
+    QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     /**
      * 获取当前登录用户
