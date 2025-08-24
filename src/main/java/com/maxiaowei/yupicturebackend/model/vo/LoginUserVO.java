@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 已登录用户视图（脱敏）
+ * 已登录用户视图（脱敏） 只返回当前视图当中存在的数据
  */
 @Data
 public class LoginUserVO implements Serializable {
