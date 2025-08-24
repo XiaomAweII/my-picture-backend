@@ -48,6 +48,15 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.26</version>
         </dependency>
+
+        <!-- Knife4j 接口文档 : https://doc.xiaominfo.com/docs/quick-start#spring-boot-2J2rYySLcVm4IW0nshoQYwP1a -->
+        <!--http://【地址】:【端口】/doc.html -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.4.0</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
