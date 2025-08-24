@@ -1,16 +1,23 @@
 package com.maxiaowei.yupicturebackend.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.maxiaowei.yupicturebackend.common.constant.UserConstant;
 import com.maxiaowei.yupicturebackend.exception.BusinessException;
 import com.maxiaowei.yupicturebackend.exception.ErrorCode;
 import com.maxiaowei.yupicturebackend.model.enums.UserRoleEnum;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
+import com.maxiaowei.yupicturebackend.model.vo.LoginUserVO;
 import com.maxiaowei.yupicturebackend.service.UserService;
 import com.maxiaowei.yupicturebackend.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static com.maxiaowei.yupicturebackend.common.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * @author Administrator
@@ -55,6 +62,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 加盐值，混淆密码
         final String SALT = "xiaowei";
         return DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+    }
+
+    @Override
+    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+        // 1. 校验
+        checkValidBeforeLogin(userAccount, userPassword);
+
+        // 2. 加密
+        String encryptPassword = getEncryptPassword(userPassword);
+
+        // 3. 查询用户是否存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPassword", encryptPassword);
+        User user = this.baseMapper.selectOne(queryWrapper);
+
+        // 3.1 用户不存在
+        if (null == user) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+        }
+        // 4. 记录用户登录态
+        request.getSession().setAttribute(USER_LOGIN_STATE, user);
+        return this.getLoginUserVO(user);
+    }
+
+    @Override
+    public LoginUserVO getLoginUserVO(User user) {
+        if (null == user) {
+            return null;
+        }
+        LoginUserVO loginUserVO = new LoginUserVO();
+        BeanUtil.copyProperties(user, loginUserVO);
+        return loginUserVO;
+    }
+
+    private void checkValidBeforeLogin(String userAccount, String userPassword) {
+        if (StrUtil.hasBlank(userAccount, userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
+        }
+        if (userPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+        }
     }
 
     private void checkValidBeforeRegister(String userAccount, String userPassword, String checkPassword) {

@@ -2,6 +2,9 @@ package com.maxiaowei.yupicturebackend.service;
 
 import com.maxiaowei.yupicturebackend.model.pojo.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.maxiaowei.yupicturebackend.model.vo.LoginUserVO;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author Administrator
@@ -26,4 +29,22 @@ public interface UserService extends IService<User> {
      * @return
      */
     String getEncryptPassword(String userPassword);
+
+    /**
+     * 用户登录
+     *
+     * @param userAccount  用户账户
+     * @param userPassword 用户密码
+     * @param request
+     * @return 脱敏后的用户信息
+     */
+    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 获得脱敏后的登录用户信息
+     *
+     * @param user
+     * @return
+     */
+    LoginUserVO getLoginUserVO(User user);
 }
