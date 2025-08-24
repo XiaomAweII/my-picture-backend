@@ -1,4 +1,4 @@
-package com.maxiaowei.yupicturebackend.exception;
+package com.maxiaowei.yupicturebackend.common.exception;
 
 
 public class ThrowUtils {

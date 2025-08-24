@@ -1,4 +1,4 @@
-package com.maxiaowei.yupicturebackend.exception;
+package com.maxiaowei.yupicturebackend.common.exception;
 
 import com.maxiaowei.yupicturebackend.common.BaseResponse;
 import com.maxiaowei.yupicturebackend.common.ResultUtils;

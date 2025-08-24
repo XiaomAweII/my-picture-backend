@@ -1,7 +1,7 @@
 package com.maxiaowei.yupicturebackend.common;
 
 
-import com.maxiaowei.yupicturebackend.exception.ErrorCode;
+import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
 
 public class ResultUtils {
     /**

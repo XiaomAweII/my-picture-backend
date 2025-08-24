@@ -2,8 +2,8 @@ package com.maxiaowei.yupicturebackend.controller;
 
 import com.maxiaowei.yupicturebackend.common.BaseResponse;
 import com.maxiaowei.yupicturebackend.common.ResultUtils;
-import com.maxiaowei.yupicturebackend.exception.ErrorCode;
-import com.maxiaowei.yupicturebackend.exception.ThrowUtils;
+import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
+import com.maxiaowei.yupicturebackend.common.exception.ThrowUtils;
 import com.maxiaowei.yupicturebackend.model.dto.user.UserLoginRequest;
 import com.maxiaowei.yupicturebackend.model.dto.user.UserRegisterRequest;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
