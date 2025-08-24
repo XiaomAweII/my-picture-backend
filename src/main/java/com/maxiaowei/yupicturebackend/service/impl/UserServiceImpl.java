@@ -44,7 +44,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setUserName("无名氏");
         user.setUserRole(UserRoleEnum.USER.getValue());
         boolean isSave = this.save(user);
-        if (isSave) {
+        if (!isSave) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败， 数据库异常");
         }
         return user.getId();
