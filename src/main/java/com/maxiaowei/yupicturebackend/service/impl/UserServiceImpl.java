@@ -97,6 +97,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         return loginUserVO;
     }
 
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        // 1. 先检查用户是否登录
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User currentUser = (User) userObj;
+        if (null == currentUser || null == currentUser.getId()) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        // 2. 从数据库查询（也可以不查询直接返回从会话session当中拿到的登录信息）
+        Long userId = currentUser.getId();
+        currentUser = this.getById(userId);
+        if (null == currentUser) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        return currentUser;
+    }
+
     private void checkValidBeforeLogin(String userAccount, String userPassword) {
         if (StrUtil.hasBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
