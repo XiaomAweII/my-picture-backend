@@ -45,7 +45,15 @@ public class UserController {
 
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest httpServletRequest) {
+        ThrowUtils.throwIf(null == httpServletRequest, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(httpServletRequest);
         return ResultUtils.success(userService.getLoginUserVO(loginUser));
+    }
+
+    @PostMapping("/logout")
+    public BaseResponse<Boolean> userLogout(HttpServletRequest httpServletRequest) {
+        ThrowUtils.throwIf(null == httpServletRequest, ErrorCode.PARAMS_ERROR);
+        boolean result = userService.userLogout(httpServletRequest);
+        return ResultUtils.success(result);
     }
 }
