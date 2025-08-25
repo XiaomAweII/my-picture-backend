@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: local
   application:
     name: yu-picture-backend
   # 数据库配置
@@ -19,7 +19,7 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
     # 仅在开发环境开启日志
-  #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名
@@ -28,7 +28,7 @@ mybatis-plus:
 
 # 接口文档配置
 knife4j:
-  enable: false
+  enable: true
   openapi:
     title: "接口文档"
     version: 1.0
