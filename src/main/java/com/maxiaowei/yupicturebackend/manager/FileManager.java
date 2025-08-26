@@ -55,7 +55,7 @@ public class FileManager {
             file = File.createTempFile(uploadPath, null);
             multipartFile.transferTo(file);
             // 上传图片
-            PutObjectResult putObjectResult = cosManager.putObject(uploadPath, file);
+            PutObjectResult putObjectResult = cosManager.putPictureObject(uploadPath, file);
             ImageInfo imageInfo = putObjectResult.getCiUploadResult().getOriginalInfo().getImageInfo();
             // 封装返回结果
             UploadPictureResult uploadPictureResult = new UploadPictureResult();
