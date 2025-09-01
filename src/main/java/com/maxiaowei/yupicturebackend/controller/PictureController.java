@@ -12,6 +12,7 @@ import com.maxiaowei.yupicturebackend.common.exception.BusinessException;
 import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
 import com.maxiaowei.yupicturebackend.common.exception.ThrowUtils;
 import com.maxiaowei.yupicturebackend.model.dto.picture.*;
+import com.maxiaowei.yupicturebackend.model.enums.PictureReviewStatusEnum;
 import com.maxiaowei.yupicturebackend.model.pojo.Picture;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
 import com.maxiaowei.yupicturebackend.model.vo.PictureTagCategory;
@@ -170,6 +171,8 @@ public class PictureController {
         long size = pictureQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        // 普通用户默认只能查看已过审的数据
+        pictureQueryRequest.setReviewStatus(PictureReviewStatusEnum.PASS.getValue());
         // 查询数据库
         Page<Picture> picturePage = pictureService.page(new Page<>(current, size),
                 pictureService.getQueryWrapper(pictureQueryRequest));
