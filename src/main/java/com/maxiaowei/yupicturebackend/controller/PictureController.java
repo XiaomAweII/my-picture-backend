@@ -11,10 +11,7 @@ import com.maxiaowei.yupicturebackend.common.constant.UserConstant;
 import com.maxiaowei.yupicturebackend.common.exception.BusinessException;
 import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
 import com.maxiaowei.yupicturebackend.common.exception.ThrowUtils;
-import com.maxiaowei.yupicturebackend.model.dto.picture.PictureEditRequest;
-import com.maxiaowei.yupicturebackend.model.dto.picture.PictureQueryRequest;
-import com.maxiaowei.yupicturebackend.model.dto.picture.PictureReviewRequest;
-import com.maxiaowei.yupicturebackend.model.dto.picture.PictureUploadRequest;
+import com.maxiaowei.yupicturebackend.model.dto.picture.*;
 import com.maxiaowei.yupicturebackend.model.pojo.Picture;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
 import com.maxiaowei.yupicturebackend.model.vo.PictureTagCategory;
@@ -22,6 +19,7 @@ import com.maxiaowei.yupicturebackend.model.vo.PictureVO;
 import com.maxiaowei.yupicturebackend.service.PictureService;
 import com.maxiaowei.yupicturebackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -87,6 +85,36 @@ public class PictureController {
         }
         // 操作数据库
         boolean result = pictureService.removeById(id);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+    /**
+     * 更新图片（仅管理员可用）
+     */
+    @PostMapping("/update")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updatePicture(@RequestBody PictureUpdateRequest pictureUpdateRequest,
+                                               HttpServletRequest httpServletRequest) {
+        if (pictureUpdateRequest == null || pictureUpdateRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 将实体类和 DTO 进行转换
+        Picture picture = new Picture();
+        BeanUtils.copyProperties(pictureUpdateRequest, picture);
+        // 注意将 list 转为 string
+        picture.setTags(JSONUtil.toJsonStr(pictureUpdateRequest.getTags()));
+        // 数据校验
+        pictureService.validPicture(picture);
+        // 判断是否存在
+        long id = pictureUpdateRequest.getId();
+        Picture oldPicture = pictureService.getById(id);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 补充审核参数
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        pictureService.fillReviewParams(picture, loginUser);
+        // 操作数据库
+        boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
@@ -173,10 +201,11 @@ public class PictureController {
         Picture oldPicture = pictureService.getById(id);
         ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        if (!oldPicture.getUserId().equals(loginUser.getId()) &&
-                !userService.isAdmin(loginUser)) {
+        if (!oldPicture.getUserId().equals(loginUser.getId()) && !userService.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
+        // 补充审核参数
+        pictureService.fillReviewParams(picture, loginUser);
         // 操作数据库
         boolean result = pictureService.updateById(picture);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
