@@ -6,12 +6,15 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.maxiaowei.yupicturebackend.common.exception.BusinessException;
 import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
 import com.maxiaowei.yupicturebackend.common.exception.ThrowUtils;
 import com.maxiaowei.yupicturebackend.manager.FileManager;
 import com.maxiaowei.yupicturebackend.model.dto.file.UploadPictureResult;
 import com.maxiaowei.yupicturebackend.model.dto.picture.PictureQueryRequest;
+import com.maxiaowei.yupicturebackend.model.dto.picture.PictureReviewRequest;
 import com.maxiaowei.yupicturebackend.model.dto.picture.PictureUploadRequest;
+import com.maxiaowei.yupicturebackend.model.enums.PictureReviewStatusEnum;
 import com.maxiaowei.yupicturebackend.model.pojo.Picture;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
 import com.maxiaowei.yupicturebackend.model.vo.PictureVO;
@@ -19,6 +22,7 @@ import com.maxiaowei.yupicturebackend.model.vo.UserVO;
 import com.maxiaowei.yupicturebackend.service.PictureService;
 import com.maxiaowei.yupicturebackend.mapper.PictureMapper;
 import com.maxiaowei.yupicturebackend.service.UserService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -193,6 +197,30 @@ public class PictureServiceImpl extends ServiceImpl<PictureMapper, Picture>
         });
         pictureVOPage.setRecords(pictureVOList);
         return pictureVOPage;
+    }
+
+    @Override
+    public void doPictureReview(PictureReviewRequest pictureReviewRequest, User loginUser) {
+        Long id = pictureReviewRequest.getId();
+        Integer reviewStatus = pictureReviewRequest.getReviewStatus();
+        PictureReviewStatusEnum reviewStatusEnum = PictureReviewStatusEnum.getEnumByValue(reviewStatus);
+        if (id == null || reviewStatusEnum == null || PictureReviewStatusEnum.REVIEWING.equals(reviewStatusEnum)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 判断是否存在
+        Picture oldPicture = this.getById(id);
+        ThrowUtils.throwIf(oldPicture == null, ErrorCode.NOT_FOUND_ERROR);
+        // 已是该状态
+        if (oldPicture.getReviewStatus().equals(reviewStatus)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请勿重复审核");
+        }
+        // 更新审核状态
+        Picture updatePicture = new Picture();
+        BeanUtils.copyProperties(pictureReviewRequest, updatePicture);
+        updatePicture.setReviewerId(loginUser.getId());
+        updatePicture.setReviewTime(new Date());
+        boolean result = this.updateById(updatePicture);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
     }
 }
 
