@@ -13,6 +13,7 @@ import com.maxiaowei.yupicturebackend.common.exception.ErrorCode;
 import com.maxiaowei.yupicturebackend.common.exception.ThrowUtils;
 import com.maxiaowei.yupicturebackend.model.dto.picture.PictureEditRequest;
 import com.maxiaowei.yupicturebackend.model.dto.picture.PictureQueryRequest;
+import com.maxiaowei.yupicturebackend.model.dto.picture.PictureReviewRequest;
 import com.maxiaowei.yupicturebackend.model.dto.picture.PictureUploadRequest;
 import com.maxiaowei.yupicturebackend.model.pojo.Picture;
 import com.maxiaowei.yupicturebackend.model.pojo.User;
@@ -190,5 +191,15 @@ public class PictureController {
         pictureTagCategory.setTagList(tagList);
         pictureTagCategory.setCategoryList(categoryList);
         return ResultUtils.success(pictureTagCategory);
+    }
+
+    @PostMapping("/review")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> doPictureReview(@RequestBody PictureReviewRequest pictureReviewRequest,
+                                                 HttpServletRequest httpServletRequest) {
+        ThrowUtils.throwIf(pictureReviewRequest == null, ErrorCode.PARAMS_ERROR);
+        User loginUser = userService.getLoginUser(httpServletRequest);
+        pictureService.doPictureReview(pictureReviewRequest, loginUser);
+        return ResultUtils.success(true);
     }
 }
