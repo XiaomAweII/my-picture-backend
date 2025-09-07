@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.maxiaowei.yupicturebackend.common.BaseResponse;
 import com.maxiaowei.yupicturebackend.common.DeleteRequest;
 import com.maxiaowei.yupicturebackend.common.ResultUtils;
@@ -30,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +53,17 @@ public class PictureController {
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    /**
+     * 本地缓存
+     */
+    private final Cache<String, String> LOCAL_CACHE = Caffeine.newBuilder()
+            .initialCapacity(1024)
+            // 最大 10000 条
+            .maximumSize(10_100L)
+            // 缓存 5 分钟后移除
+            .expireAfterWrite(Duration.ofMinutes(5))
+            .build();
 
     /**
      * 上传图片（可重新上传）
